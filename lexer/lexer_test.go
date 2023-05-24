@@ -241,7 +241,7 @@ func TestLexer_NextToken(t *testing.T) {
 	}
 }
 
-func TestLexer_readIdentifier(t *testing.T) {
+func TestLexer_readNumberOrIdentifier(t *testing.T) {
 	type fields struct {
 		input        string
 		position     int
@@ -251,56 +251,31 @@ func TestLexer_readIdentifier(t *testing.T) {
 	tests := []struct {
 		name   string
 		fields fields
+		fn     func(byte) bool
 		want   string
 	}{
 		{
-			name: "Test_readIdentifier_FUNCTION",
+			name: "Test_readNumberOrIdentifier_FUNCTION",
 			fields: fields{
 				input:        "function",
 				position:     0,
 				readPosition: 1,
 				char:         byte('f'),
 			},
+			fn:   isLetter,
 			want: "function",
 		},
 		{
-			name: "Test_readIdentifier_LET",
+			name: "Test_readNumberOrIdentifier_LET",
 			fields: fields{
 				input:        "let",
 				position:     0,
 				readPosition: 1,
 				char:         byte('l'),
 			},
+			fn:   isLetter,
 			want: "let",
 		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			l := &Lexer{
-				input:        tt.fields.input,
-				position:     tt.fields.position,
-				readPosition: tt.fields.readPosition,
-				char:         tt.fields.char,
-			}
-			if got := l.readIdentifier(); got != tt.want {
-				t.Errorf("Lexer.readIdentifier() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func TestLexer_readNumber(t *testing.T) {
-	type fields struct {
-		input        string
-		position     int
-		readPosition int
-		char         byte
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   string
-	}{
 		{
 			name: "Test_readNumber_5",
 			fields: fields{
@@ -309,6 +284,7 @@ func TestLexer_readNumber(t *testing.T) {
 				readPosition: 1,
 				char:         byte('5'),
 			},
+			fn:   isDigit,
 			want: "5",
 		},
 	}
@@ -320,8 +296,8 @@ func TestLexer_readNumber(t *testing.T) {
 				readPosition: tt.fields.readPosition,
 				char:         tt.fields.char,
 			}
-			if got := l.readNumber(); got != tt.want {
-				t.Errorf("Lexer.readNumber() = %v, want %v", got, tt.want)
+			if got := l.readNumberOrIdentifier(tt.fn); got != tt.want {
+				t.Errorf("Lexer.readNumberOrIdentifier() = %v, want %v", got, tt.want)
 			}
 		})
 	}
