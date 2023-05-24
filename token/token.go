@@ -9,8 +9,17 @@ const (
 	// INT literals 12345
 	INT = "INT"
 
-	ASSIGN = "="
-	PLUS   = "+"
+	// Operators
+	ASSIGN   = "="
+	PLUS     = "+"
+	MINUS    = "-"
+	BANG     = "!"
+	ASTERISK = "*"
+	SLASH    = "/"
+	LT       = "<"
+	GT       = ">"
+	EQ       = "=="
+	NOT_EQ   = "!="
 
 	COMMA     = ","
 	SEMICOLON = ";"
@@ -19,8 +28,14 @@ const (
 	LSQUIGGLE = "{"
 	RSQUIGGLE = "}"
 
+	// Keywords
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
+	TRUE     = "TRUE"
+	FALSE    = "FALSE"
+	IF       = "IF"
+	ELSE     = "ELSE"
+	RETURN   = "RETURN"
 )
 
 type TokenType string
@@ -39,12 +54,23 @@ var TokenTypes = map[byte]TokenType{
 	'+': PLUS,
 	'{': LSQUIGGLE,
 	'}': RSQUIGGLE,
+	'-': MINUS,
+	'!': BANG,
+	'*': ASTERISK,
+	'/': SLASH,
+	'<': LT,
+	'>': GT,
 	0:   EOF,
 }
 
 var keywords = map[string]TokenType{
-	"fn":  FUNCTION,
-	"let": LET,
+	"fn":     FUNCTION,
+	"let":    LET,
+	"true":   TRUE,
+	"false":  FALSE,
+	"if":     IF,
+	"else":   ELSE,
+	"return": RETURN,
 }
 
 func LookupIdent(ident string) TokenType {

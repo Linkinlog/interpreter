@@ -32,11 +32,24 @@ func (l *Lexer) readChar() {
 	l.readPosition += 1
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.readPosition >= len(l.input) {
+		return 0
+	}
+	return l.input[l.readPosition]
+}
+
 func (l *Lexer) NextToken() (toke token.Token) {
 	l.skipWhitespace()
 	tokenType, ok := token.TokenTypes[l.char]
 	if !ok && (!isDigit(l.char) && !isLetter(l.char)) {
 		return newToken(token.ILLEGAL, l.char)
+	}
+	if isTwoCharToken(l.char, l.peekChar()) {
+		toke = makeTwoCharToken(l.char, l.peekChar())
+		l.readChar()
+		l.readChar()
+		return toke
 	}
 	if isLetter(l.char) {
 		toke.Literal = l.readNumberOrIdentifier(isLetter)
@@ -76,6 +89,23 @@ func isLetter(char byte) bool {
 
 func isDigit(char byte) bool {
 	return '0' <= char && char <= '9'
+}
+
+func isTwoCharToken(char byte, next byte) bool {
+	if (char == '=' || char == '!') && next == '=' {
+		return true
+	}
+	return false
+}
+
+func makeTwoCharToken(first byte, second byte) (toke token.Token) {
+	toke.Literal = string(first) + string(second)
+	if first == '!' {
+		toke.Type = token.NOT_EQ
+	} else if first == '=' {
+		toke.Type = token.EQ
+	}
+	return toke
 }
 
 func (l *Lexer) skipWhitespace() {

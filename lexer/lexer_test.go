@@ -7,41 +7,7 @@ import (
 	"github.com/Linkinlog/MagLang/token"
 )
 
-func TestNextTokenSimple(t *testing.T) {
-	input := `=+(){},;`
-
-	tests := []struct {
-		expectedType    token.TokenType
-		expectedLiteral string
-	}{
-		{token.ASSIGN, "="},
-		{token.PLUS, "+"},
-		{token.LPAREN, "("},
-		{token.RPAREN, ")"},
-		{token.LSQUIGGLE, "{"},
-		{token.RSQUIGGLE, "}"},
-		{token.COMMA, ","},
-		{token.SEMICOLON, ";"},
-		{token.EOF, ""},
-	}
-
-	i := New(input)
-
-	for idx, tt := range tests {
-		token := i.NextToken()
-		if token.Type != tt.expectedType {
-			t.Fatalf("tests[%d] - tokenType wrong, exptected=%q, received=%q",
-				idx, tt.expectedType, token.Type)
-		}
-
-		if token.Literal != tt.expectedLiteral {
-			t.Fatalf("tests[%d] - tokenLiteral wrong, exptected=%q, received=%q",
-				idx, tt.expectedLiteral, token.Literal)
-		}
-	}
-}
-
-func TestNextTokenFull(t *testing.T) {
+func TestLexer_NextToken(t *testing.T) {
 	input := `let five = 5;
 	let ten = 10;
 
@@ -50,6 +16,16 @@ func TestNextTokenFull(t *testing.T) {
 	};
 
 	let result = add(five, ten);
+	!-/*5;
+	5 < 10 > 5;
+	if (5 < 10) {
+		return true;
+	} else {
+		return false;
+	}
+
+	10 == 10;
+	10 != 9;
 	`
 
 	tests := []struct {
@@ -92,6 +68,43 @@ func TestNextTokenFull(t *testing.T) {
 		{token.IDENT, "ten"},
 		{token.RPAREN, ")"},
 		{token.SEMICOLON, ";"},
+		{token.BANG, "!"},
+		{token.MINUS, "-"},
+		{token.SLASH, "/"},
+		{token.ASTERISK, "*"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.GT, ">"},
+		{token.INT, "5"},
+		{token.SEMICOLON, ";"},
+		{token.IF, "if"},
+		{token.LPAREN, "("},
+		{token.INT, "5"},
+		{token.LT, "<"},
+		{token.INT, "10"},
+		{token.RPAREN, ")"},
+		{token.LSQUIGGLE, "{"},
+		{token.RETURN, "return"},
+		{token.TRUE, "true"},
+		{token.SEMICOLON, ";"},
+		{token.RSQUIGGLE, "}"},
+		{token.ELSE, "else"},
+		{token.LSQUIGGLE, "{"},
+		{token.RETURN, "return"},
+		{token.FALSE, "false"},
+		{token.SEMICOLON, ";"},
+		{token.RSQUIGGLE, "}"},
+		{token.INT, "10"},
+		{token.EQ, "=="},
+		{token.INT, "10"},
+		{token.SEMICOLON, ";"},
+		{token.INT, "10"},
+		{token.NOT_EQ, "!="},
+		{token.INT, "9"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
@@ -127,7 +140,7 @@ func TestNew(t *testing.T) {
 				input:        "let foo = 5;",
 				position:     0,
 				readPosition: 1,
-				char:         byte('l'),
+				char:         'l',
 			},
 		},
 	}
@@ -157,7 +170,7 @@ func TestLexer_readChar(t *testing.T) {
 				input:        "let foo = 5;",
 				position:     0,
 				readPosition: 1,
-				char:         byte('l'),
+				char:         'l',
 			},
 		},
 	}
@@ -174,7 +187,7 @@ func TestLexer_readChar(t *testing.T) {
 	}
 }
 
-func TestLexer_NextToken(t *testing.T) {
+func TestLexer_NextTokenIndividual(t *testing.T) {
 	type fields struct {
 		input        string
 		position     int
@@ -187,16 +200,29 @@ func TestLexer_NextToken(t *testing.T) {
 		wantToke token.Token
 	}{
 		{
-			name: "Test_NextToken_ILLEGAL",
+			name: "Test_NextToken_BANG",
 			fields: fields{
 				input:        "!foo",
 				position:     0,
 				readPosition: 1,
-				char:         byte('!'),
+				char:         '!',
+			},
+			wantToke: token.Token{
+				Type:    token.BANG,
+				Literal: "!",
+			},
+		},
+		{
+			name: "Test_NextToken_ILLEGAL",
+			fields: fields{
+				input:        "@foo",
+				position:     0,
+				readPosition: 1,
+				char:         '@',
 			},
 			wantToke: token.Token{
 				Type:    token.ILLEGAL,
-				Literal: "!",
+				Literal: "@",
 			},
 		},
 		{
@@ -205,7 +231,7 @@ func TestLexer_NextToken(t *testing.T) {
 				input:        "foo",
 				position:     0,
 				readPosition: 1,
-				char:         byte('f'),
+				char:         'f',
 			},
 			wantToke: token.Token{
 				Type:    token.IDENT,
@@ -213,12 +239,12 @@ func TestLexer_NextToken(t *testing.T) {
 			},
 		},
 		{
-			name: "Test_NextToken_IDENT",
+			name: "Test_NextToken_LET",
 			fields: fields{
 				input:        "let",
 				position:     0,
 				readPosition: 1,
-				char:         byte('l'),
+				char:         'l',
 			},
 			wantToke: token.Token{
 				Type:    token.LET,
@@ -260,7 +286,7 @@ func TestLexer_readNumberOrIdentifier(t *testing.T) {
 				input:        "function",
 				position:     0,
 				readPosition: 1,
-				char:         byte('f'),
+				char:         'f',
 			},
 			fn:   isLetter,
 			want: "function",
@@ -271,7 +297,7 @@ func TestLexer_readNumberOrIdentifier(t *testing.T) {
 				input:        "let",
 				position:     0,
 				readPosition: 1,
-				char:         byte('l'),
+				char:         'l',
 			},
 			fn:   isLetter,
 			want: "let",
@@ -282,7 +308,7 @@ func TestLexer_readNumberOrIdentifier(t *testing.T) {
 				input:        "5",
 				position:     0,
 				readPosition: 1,
-				char:         byte('5'),
+				char:         '5',
 			},
 			fn:   isDigit,
 			want: "5",
@@ -417,7 +443,7 @@ func TestLexer_skipWhitespace(t *testing.T) {
 				input:        "let     foo = 5;",
 				position:     0,
 				readPosition: 1,
-				char:         byte('l'),
+				char:         'l',
 			},
 		},
 	}
@@ -430,6 +456,132 @@ func TestLexer_skipWhitespace(t *testing.T) {
 				char:         tt.fields.char,
 			}
 			l.skipWhitespace()
+		})
+	}
+}
+
+func TestLexer_peekChar(t *testing.T) {
+	type fields struct {
+		input        string
+		position     int
+		readPosition int
+		char         byte
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   byte
+	}{
+		{
+			name: "Test_peekChar_Simple",
+			fields: fields{
+				input:        "!=",
+				position:     0,
+				readPosition: 1,
+				char:         '!',
+			},
+			want: '=',
+		},
+		{
+			name: "Test_peekChar_Empty",
+			fields: fields{
+				input:        "",
+				position:     0,
+				readPosition: 0,
+				char:         0,
+			},
+			want: 0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			l := &Lexer{
+				input:        tt.fields.input,
+				position:     tt.fields.position,
+				readPosition: tt.fields.readPosition,
+				char:         tt.fields.char,
+			}
+			if got := l.peekChar(); got != tt.want {
+				t.Errorf("Lexer.peekChar() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_isTwoCharToken(t *testing.T) {
+	type args struct {
+		char byte
+		next byte
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "Test_isTwoCharToken_!$",
+			args: args{
+				char: '!',
+				next: '$',
+			},
+			want: false,
+		},
+		{
+			name: "Test_isTwoCharToken_!=",
+			args: args{
+				char: '!',
+				next: '=',
+			},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := isTwoCharToken(tt.args.char, tt.args.next); got != tt.want {
+				t.Errorf("isTwoCharToken() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_makeTwoCharToken(t *testing.T) {
+	type args struct {
+		first  byte
+		second byte
+	}
+	tests := []struct {
+		name     string
+		args     args
+		wantToke token.Token
+	}{
+		{
+			name:     "Test_makeTwoCharToken_!=",
+			args:     args{
+				first:  '!',
+				second: '=',
+			},
+			wantToke: token.Token{
+				Type:    token.NOT_EQ,
+				Literal: "!=",
+			},
+		},
+		{
+			name:     "Test_makeTwoCharToken_==",
+			args:     args{
+				first:  '=',
+				second: '=',
+			},
+			wantToke: token.Token{
+				Type:    token.EQ,
+				Literal: "==",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if gotToke := makeTwoCharToken(tt.args.first, tt.args.second); !reflect.DeepEqual(gotToke, tt.wantToke) {
+				t.Errorf("makeTwoCharToken() = %v, want %v", gotToke, tt.wantToke)
+			}
 		})
 	}
 }
