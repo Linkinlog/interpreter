@@ -1,5 +1,5 @@
 MAIN := main.go
-BINARY := gas
+BINARY := mag
 PWD := $(shell pwd)
 
 all: $(BINARY)
