@@ -64,13 +64,13 @@ var TokenTypes = map[byte]TokenType{
 }
 
 var keywords = map[string]TokenType{
-	"fn":     FUNCTION,
-	"let":    LET,
-	"true":   TRUE,
-	"false":  FALSE,
-	"if":     IF,
-	"else":   ELSE,
-	"return": RETURN,
+	"funk":      FUNCTION,
+	"ask":       LET,
+	"factual":   TRUE,
+	"fictional": FALSE,
+	"consider":  IF,
+	"however":   ELSE,
+	"giving":    RETURN,
 }
 
 func LookupIdent(ident string) TokenType {

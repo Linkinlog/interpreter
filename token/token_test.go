@@ -14,7 +14,7 @@ func TestLookupIdent(t *testing.T) {
 		{
 			name: "Test_LookupIdent_fn",
 			args: args{
-				ident: "fn",
+				ident: "funk",
 			},
 			want: FUNCTION,
 		},

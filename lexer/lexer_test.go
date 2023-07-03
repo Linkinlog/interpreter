@@ -8,20 +8,21 @@ import (
 )
 
 func TestLexer_NextToken(t *testing.T) {
-	input := `let five = 5;
-	let ten = 10;
+	input := `
+	ask five = 5;
+	ask ten = 10;
 
-	let add = fn(x, y) {
+	ask add = funk(x, y) {
 		x + y;
 	};
 
-	let result = add(five, ten);
+	ask result = add(five, ten);
 	!-/*5;
 	5 < 10 > 5;
-	if (5 < 10) {
-		return true;
-	} else {
-		return false;
+	consider (5 < 10) {
+		giving factual;
+	} however {
+		giving fictional;
 	}
 
 	10 == 10;
@@ -32,20 +33,20 @@ func TestLexer_NextToken(t *testing.T) {
 		expectedType    token.TokenType
 		expectedLiteral string
 	}{
-		{token.LET, "let"},
+		{token.LET, "ask"},
 		{token.IDENT, "five"},
 		{token.ASSIGN, "="},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
+		{token.LET, "ask"},
 		{token.IDENT, "ten"},
 		{token.ASSIGN, "="},
 		{token.INT, "10"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
+		{token.LET, "ask"},
 		{token.IDENT, "add"},
 		{token.ASSIGN, "="},
-		{token.FUNCTION, "fn"},
+		{token.FUNCTION, "funk"},
 		{token.LPAREN, "("},
 		{token.IDENT, "x"},
 		{token.COMMA, ","},
@@ -58,7 +59,7 @@ func TestLexer_NextToken(t *testing.T) {
 		{token.SEMICOLON, ";"},
 		{token.RSQUIGGLE, "}"},
 		{token.SEMICOLON, ";"},
-		{token.LET, "let"},
+		{token.LET, "ask"},
 		{token.IDENT, "result"},
 		{token.ASSIGN, "="},
 		{token.IDENT, "add"},
@@ -80,21 +81,21 @@ func TestLexer_NextToken(t *testing.T) {
 		{token.GT, ">"},
 		{token.INT, "5"},
 		{token.SEMICOLON, ";"},
-		{token.IF, "if"},
+		{token.IF, "consider"},
 		{token.LPAREN, "("},
 		{token.INT, "5"},
 		{token.LT, "<"},
 		{token.INT, "10"},
 		{token.RPAREN, ")"},
 		{token.LSQUIGGLE, "{"},
-		{token.RETURN, "return"},
-		{token.TRUE, "true"},
+		{token.RETURN, "giving"},
+		{token.TRUE, "factual"},
 		{token.SEMICOLON, ";"},
 		{token.RSQUIGGLE, "}"},
-		{token.ELSE, "else"},
+		{token.ELSE, "however"},
 		{token.LSQUIGGLE, "{"},
-		{token.RETURN, "return"},
-		{token.FALSE, "false"},
+		{token.RETURN, "giving"},
+		{token.FALSE, "fictional"},
 		{token.SEMICOLON, ";"},
 		{token.RSQUIGGLE, "}"},
 		{token.INT, "10"},
@@ -135,12 +136,12 @@ func TestNew(t *testing.T) {
 	}{
 		{
 			name: "Test_New_01",
-			args: args{input: "let foo = 5;"},
+			args: args{input: "ask foo = 5;"},
 			want: &Lexer{
-				input:        "let foo = 5;",
+				input:        "ask foo = 5;",
 				position:     0,
 				readPosition: 1,
-				char:         'l',
+				char:         'a',
 			},
 		},
 	}
@@ -167,7 +168,7 @@ func TestLexer_readChar(t *testing.T) {
 		{
 			name: "Test_readChar_01",
 			fields: fields{
-				input:        "let foo = 5;",
+				input:        "ask foo = 5;",
 				position:     0,
 				readPosition: 1,
 				char:         'l',
@@ -239,16 +240,16 @@ func TestLexer_NextTokenIndividual(t *testing.T) {
 			},
 		},
 		{
-			name: "Test_NextToken_LET",
+			name: "Test_NextToken_ask",
 			fields: fields{
-				input:        "let",
+				input:        "ask",
 				position:     0,
 				readPosition: 1,
 				char:         'l',
 			},
 			wantToke: token.Token{
 				Type:    token.LET,
-				Literal: "let",
+				Literal: "ask",
 			},
 		},
 	}
@@ -292,15 +293,15 @@ func TestLexer_readNumberOrIdentifier(t *testing.T) {
 			want: "function",
 		},
 		{
-			name: "Test_readNumberOrIdentifier_LET",
+			name: "Test_readNumberOrIdentifier_ask",
 			fields: fields{
-				input:        "let",
+				input:        "ask",
 				position:     0,
 				readPosition: 1,
 				char:         'l',
 			},
 			fn:   isLetter,
-			want: "let",
+			want: "ask",
 		},
 		{
 			name: "Test_readNumber_5",
@@ -440,7 +441,7 @@ func TestLexer_skipWhitespace(t *testing.T) {
 		{
 			name: "Test_SkipWhitespace_01",
 			fields: fields{
-				input:        "let     foo = 5;",
+				input:        "asks    foo = 5;",
 				position:     0,
 				readPosition: 1,
 				char:         'l',
@@ -555,8 +556,8 @@ func Test_makeTwoCharToken(t *testing.T) {
 		wantToke token.Token
 	}{
 		{
-			name:     "Test_makeTwoCharToken_!=",
-			args:     args{
+			name: "Test_makeTwoCharToken_!=",
+			args: args{
 				first:  '!',
 				second: '=',
 			},
@@ -566,8 +567,8 @@ func Test_makeTwoCharToken(t *testing.T) {
 			},
 		},
 		{
-			name:     "Test_makeTwoCharToken_==",
-			args:     args{
+			name: "Test_makeTwoCharToken_==",
+			args: args{
 				first:  '=',
 				second: '=',
 			},
