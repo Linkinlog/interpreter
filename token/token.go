@@ -10,6 +10,7 @@ const (
 	INT = "INT"
 
 	// Operators
+
 	ASSIGN   = "="
 	PLUS     = "+"
 	MINUS    = "-"
@@ -29,6 +30,7 @@ const (
 	RSQUIGGLE = "}"
 
 	// Keywords
+
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
 	TRUE     = "TRUE"
