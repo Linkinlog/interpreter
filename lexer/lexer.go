@@ -5,8 +5,8 @@ import "github.com/Linkinlog/MagLang/token"
 // Lexer struct 
 type Lexer struct {
 	input        string
-	position     int  // current position we are at in the input
-	readPosition int  // position we will be reading from
+	position     int  // the current position we are at in the input
+	readPosition int  // the position we will be reading from
 	char         byte // current char we are examining
 }
 
@@ -19,11 +19,11 @@ func New(input string) *Lexer {
 
 // readChar method 
 // Sets Lexer.char to be the character at Lexer.readPosition.
-// At the EOF we set Lexer.char to "NUL".
+// At the EOF we set Lexer.char to "NUL."
 func (l *Lexer) readChar() {
-	eof_byte := byte(0)
+	eofByte := byte(0)
 	if l.readPosition >= len(l.input) {
-		l.char = eof_byte
+		l.char = eofByte
 	} else {
 		l.char = l.input[l.readPosition]
 	}
