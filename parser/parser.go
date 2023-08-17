@@ -1,6 +1,7 @@
 package parser
 
 import (
+	"fmt"
 	"github.com/Linkinlog/MagLang/ast"
 	"github.com/Linkinlog/MagLang/lexer"
 	"github.com/Linkinlog/MagLang/token"
@@ -9,12 +10,17 @@ import (
 type Parser struct {
 	l *lexer.Lexer
 
+	errors []string
+
 	currentToken  token.Token
 	peekABooToken token.Token
 }
 
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:      l,
+		errors: []string{},
+	}
 
 	// Need to read in two tokens so both current and peek are set.
 	p.nextToken()
@@ -86,4 +92,15 @@ func (p *Parser) peekABooTokenIs(t token.TokenType) bool {
 
 func (p *Parser) currentTokenIs(t token.TokenType) bool {
 	return p.currentToken.Type == t
+}
+
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("expected next token to be %s, got %s",
+		t,
+		p.peekABooToken.Type)
+	p.errors = append(p.errors, msg)
 }
