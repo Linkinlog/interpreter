@@ -1,0 +1,39 @@
+// Declare a mutable variable using "ask"
+ask x = 10;
+
+// Declare a constant using "tell"
+tell y = 5;
+
+// A basic arithmetic operation
+ask z = x + y;
+
+// Print the result
+console.log('The sum of x and y is:', z);
+
+// A range loop using "therefore"
+therefore (ask i = 0; i < x; i++) {
+    // A conditional statement using "consider"
+    consider(i === z) {
+        console.log('i is equal to z:', i);
+        // exit statement
+        snap;
+    }
+}
+
+// A Lord's loop using "during"
+ask j = 0;
+during (j < x) {
+    console.log('Current value of j:', j);
+    j++;
+}
+
+// A function declaration needs to be declared as a funk and call
+funk multiply(a, b) {
+    giving a * b;
+}
+
+// boolean values
+cap;
+noCap;
+
+console.log('Multiply 5 and 6:', multiply(5, 6));
