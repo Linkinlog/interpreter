@@ -65,6 +65,49 @@ func testAskStatement(t *testing.T, stmt ast.Statement, name string) bool {
 	return true
 }
 
+func TestReturnStatements(t *testing.T) {
+	input := `
+giving 5;
+giving 10;
+giving 993322;
+`
+	lex := lexer.New(input)
+	parse := New(lex)
+
+	program := parse.ParseProgram()
+	checkParserErrors(t, parse)
+	if len(program.Statements) != 3 {
+		t.Fatalf("Wanted 3 statements, got %d",
+			len(program.Statements),
+		)
+	}
+
+	for _, stmt := range program.Statements {
+		returnStmt, ok := stmt.(*ast.ReturnStatement)
+		if !ok {
+			t.Errorf("stmt not *ast.ReturnStatement. got=%T", stmt)
+		}
+		if returnStmt.TokenLiteral() != "giving" {
+			t.Errorf("returnStmt.TokenLiteral not 'giving', got=%q", returnStmt.TokenLiteral())
+		}
+	}
+}
+
+func testReturnStatement(t *testing.T, stmt ast.Statement, name string) bool {
+	if stmt.TokenLiteral() != "giving" {
+		t.Errorf("stmt.TokenLiteral not 'giving', got: %q", stmt.TokenLiteral())
+		return false
+	}
+
+	_, ok := stmt.(*ast.ReturnStatement)
+	if !ok {
+		t.Errorf("stmt not *ast.ReturnStatement, got: %T", stmt)
+		return false
+	}
+
+	return true
+}
+
 func checkParserErrors(t *testing.T, p *Parser) {
 	errLen := 0
 	errors := p.Errors()
