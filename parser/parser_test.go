@@ -16,6 +16,7 @@ ask foo = 420;
 	parse := New(lex)
 
 	program := parse.ParseProgram()
+	checkParserErrors(t, parse)
 	if program == nil {
 		t.Fatal("ParseProgram() returned nil")
 	}
