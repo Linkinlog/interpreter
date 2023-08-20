@@ -14,7 +14,15 @@ type Parser struct {
 
 	currentToken  token.Token
 	peekABooToken token.Token
+
+	prefixParseFns map[token.TokenType]prefixParse
+	infixParseFns  map[token.TokenType]infixParse
 }
+
+type (
+	prefixParse func() ast.Expression
+	infixParse  func(ast.Expression) ast.Expression
+)
 
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
@@ -26,6 +34,14 @@ func New(l *lexer.Lexer) *Parser {
 	p.nextToken()
 	p.nextToken()
 	return p
+}
+
+func (p *Parser) registerPrefix(tokenType token.TokenType, fn prefixParse) {
+	p.prefixParseFns[tokenType] = fn
+}
+
+func (p *Parser) registerInfix(tokenType token.TokenType, fn infixParse) {
+	p.infixParseFns[tokenType] = fn
 }
 
 func (p *Parser) nextToken() {
