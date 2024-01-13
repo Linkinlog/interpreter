@@ -36,6 +36,17 @@ type (
 	infixParse  func(ast.Expression) ast.Expression
 )
 
+var precendences = map[token.TokenType]int{
+	token.EQ:       EQUALS,
+	token.NOT_EQ:   EQUALS,
+	token.LT:       LESSGREATER,
+	token.GT:       LESSGREATER,
+	token.PLUS:     SUM,
+	token.MINUS:    SUM,
+	token.SLASH:    PRODUCT,
+	token.ASTERISK: PRODUCT,
+}
+
 func New(l *lexer.Lexer) *Parser {
 	p := &Parser{
 		l:      l,
@@ -167,7 +178,7 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 
 func (p *Parser) parsePrefixExpression() ast.Expression {
 	expression := &ast.PrefixExpression{
-		Token: p.currentToken,
+		Token:    p.currentToken,
 		Operator: p.currentToken.Literal,
 	}
 
@@ -186,6 +197,20 @@ func (p *Parser) expectPeek(t token.TokenType) bool {
 		p.peekError(t)
 		return false
 	}
+}
+
+func (p *Parser) peekPrecendence() int {
+	if p, ok := precendences[p.peekABooToken.Type]; ok {
+		return p
+	}
+	return LOWEST
+}
+
+func (p *Parser) currentPrecendence() int {
+	if p, ok := precendences[p.currentToken.Type]; ok {
+		return p
+	}
+	return LOWEST
 }
 
 func (p *Parser) peekABooTokenIs(t token.TokenType) bool {
