@@ -22,7 +22,7 @@ ask foo = 420;
 	if program == nil {
 		t.Fatal("ParseProgram() returned nil")
 	}
-	if len(program.Statements) != 3 {
+	if program != nil && len(program.Statements) != 3 {
 		t.Fatalf("Wanted 3 statements, got %d",
 			len(program.Statements),
 		)
@@ -86,14 +86,23 @@ giving 993322;
 	}
 
 	for _, stmt := range program.Statements {
-		returnStmt, ok := stmt.(*ast.ReturnStatement)
-		if !ok {
-			t.Errorf("stmt not *ast.ReturnStatement. got=%T", stmt)
-		}
-		if returnStmt.TokenLiteral() != "giving" {
-			t.Errorf("returnStmt.TokenLiteral not 'giving', got=%q", returnStmt.TokenLiteral())
-		}
+		testReturnStatement(t, stmt, "giving")
 	}
+}
+
+func testReturnStatement(t *testing.T, stmt ast.Statement, name string) bool {
+	if stmt.TokenLiteral() != name {
+		t.Errorf("stmt.TokenLiteral not 'giving', got: %q", stmt.TokenLiteral())
+		return false
+	}
+
+	_, ok := stmt.(*ast.ReturnStatement)
+	if !ok {
+		t.Errorf("stmt not *ast.ReturnStatement, got: %T", stmt)
+		return false
+	}
+
+	return true
 }
 
 func TestIdentifierExpression(t *testing.T) {
@@ -122,21 +131,6 @@ func TestIdentifierExpression(t *testing.T) {
 	if ident.Value != "foobar" {
 		t.Errorf("ident.Value not %s, got %s", "foobar", ident.TokenLiteral())
 	}
-}
-
-func testReturnStatement(t *testing.T, stmt ast.Statement, name string) bool {
-	if stmt.TokenLiteral() != "giving" {
-		t.Errorf("stmt.TokenLiteral not 'giving', got: %q", stmt.TokenLiteral())
-		return false
-	}
-
-	_, ok := stmt.(*ast.ReturnStatement)
-	if !ok {
-		t.Errorf("stmt not *ast.ReturnStatement, got: %T", stmt)
-		return false
-	}
-
-	return true
 }
 
 func TestIntegerLiteralExpression(t *testing.T) {

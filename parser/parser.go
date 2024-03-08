@@ -97,8 +97,8 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for p.currentToken.Type != token.EOF {
-		stmt := p.parseStatement()
-		if stmt != nil {
+		//nolint:staticcheck
+		if stmt := p.parseStatement(); stmt != nil {
 			program.Statements = append(program.Statements, stmt)
 		}
 		p.nextToken()
@@ -106,6 +106,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	return program
 }
 
+//nolint:staticcheck
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currentToken.Type {
 	case token.LET:
@@ -214,12 +215,12 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	expression := &ast.InfixExpression{
 		Token:    p.currentToken,
 		Operator: p.currentToken.Literal,
-		Left: left,
+		Left:     left,
 	}
 
-	precerdence := p.currentPrecendence()
+	precedence := p.currentPrecendence()
 	p.nextToken()
-	expression.Right = p.parseExpression(precerdence)
+	expression.Right = p.parseExpression(precedence)
 
 	return expression
 }
