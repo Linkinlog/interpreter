@@ -33,10 +33,10 @@ const (
 
 	FUNCTION = "FUNCTION"
 	LET      = "LET"
-	TRUE     = "TRUE"
-	FALSE    = "FALSE"
-	IF       = "IF"
-	ELSE     = "ELSE"
+	TRUE     = "NOCAP"
+	FALSE    = "CAP"
+	IF       = "CONSIDER"
+	ELSE     = "HOWEVER"
 	RETURN   = "RETURN"
 )
 
