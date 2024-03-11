@@ -158,7 +158,7 @@ func (p *Parser) parseAskStatement() *ast.AskStatement {
 
 	stmt.Value = p.parseExpression(LOWEST)
 
-	for !p.currentTokenIs(token.SEMICOLON) {
+	if p.peekABooTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 

@@ -18,6 +18,7 @@ func TestAskStatements(t *testing.T) {
 		{"ask x = 5;", "x", 5},
 		{"ask y = noCap;", "y", true},
 		{"ask foobar = y;", "foobar", "y"},
+		{"ask foobar = y", "foobar", "y"},
 	}
 
 	for _, tt := range tests {

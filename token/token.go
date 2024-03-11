@@ -31,13 +31,13 @@ const (
 
 	// Keywords
 
-	FUNCTION = "FUNCTION"
-	LET      = "LET"
+	FUNCTION = "FUNK"
+	LET      = "ASK"
 	TRUE     = "NOCAP"
 	FALSE    = "CAP"
 	IF       = "CONSIDER"
 	ELSE     = "HOWEVER"
-	RETURN   = "RETURN"
+	RETURN   = "GIVING"
 )
 
 type TokenType string
