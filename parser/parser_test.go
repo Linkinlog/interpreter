@@ -16,7 +16,7 @@ func TestAskStatements(t *testing.T) {
 		expectedValue      interface{}
 	}{
 		{"ask x = 5;", "x", 5},
-		{"ask y = noCap;", "y", "noCap"},
+		{"ask y = fact;", "y", "fact"},
 		{"ask foobar = y;", "foobar", "y"},
 		{"ask foobar = y", "foobar", "y"},
 	}
@@ -53,7 +53,7 @@ func TestReturnStatements(t *testing.T) {
 		expectedValue interface{}
 	}{
 		{"giving 5;", 5},
-		{"giving noCap;", "noCap"},
+		{"giving fact;", "fact"},
 		{"giving foobar;", "foobar"},
 	}
 
@@ -158,7 +158,7 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		{"-15;", "-", 15},
 		{"!foobar;", "!", "foobar"},
 		{"-foobar;", "-", "foobar"},
-		{"!noCap;", "!", "noCap"},
+		{"!fact;", "!", "fact"},
 		{"!cap;", "!", "cap"},
 	}
 
@@ -219,8 +219,8 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"foobar < barfoo;", "foobar", "<", "barfoo"},
 		{"foobar == barfoo;", "foobar", "==", "barfoo"},
 		{"foobar != barfoo;", "foobar", "!=", "barfoo"},
-		{"noCap == noCap", "noCap", "==", "noCap"},
-		{"noCap != cap", "noCap", "!=", "cap"},
+		{"fact == fact", "fact", "==", "fact"},
+		{"fact != cap", "fact", "!=", "cap"},
 		{"cap == cap", "cap", "==", "cap"},
 	}
 
@@ -309,16 +309,16 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"cap",
 		},
 		{
-			"noCap",
-			"noCap",
+			"fact",
+			"fact",
 		},
 		{
 			"3 > 5 == cap",
 			"((3 > 5) == cap)",
 		},
 		{
-			"3 < 5 == noCap",
-			"((3 < 5) == noCap)",
+			"3 < 5 == fact",
+			"((3 < 5) == fact)",
 		},
 		{
 			"1 + (2 + 3) + 4",
@@ -341,8 +341,8 @@ func TestOperatorPrecedenceParsing(t *testing.T) {
 			"(-(5 + 5))",
 		},
 		{
-			"!(noCap == noCap)",
-			"(!(noCap == noCap))",
+			"!(fact == fact)",
+			"(!(fact == fact))",
 		},
 		{
 			"a + add(b * c) + d",
@@ -379,7 +379,7 @@ func TestBooleanExpression(t *testing.T) {
 		input           string
 		expectedBoolean string
 	}{
-		{"noCap;", "noCap"},
+		{"fact;", "fact"},
 		{"cap;", "cap"},
 	}
 
@@ -761,7 +761,7 @@ func testLiteralExpression(
 	case int64:
 		return testIntegerLiteral(t, exp, v)
 	case string:
-		if v == "noCap" || v == "cap" {
+		if v == "fact" || v == "cap" {
 			return testBooleanLiteral(t, exp, v)
 		}
 		return testIdentifier(t, exp, v)
@@ -826,8 +826,8 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value string) bool {
 		return false
 	}
 
-	if bo.Value == "noCap" && bo.TokenLiteral() != "noCap" {
-		t.Errorf("bo.TokenLiteral not noCap. got=%s", bo.TokenLiteral())
+	if bo.Value == "fact" && bo.TokenLiteral() != "fact" {
+		t.Errorf("bo.TokenLiteral not fact. got=%s", bo.TokenLiteral())
 		return false
 	}
 

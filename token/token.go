@@ -33,7 +33,7 @@ const (
 
 	FUNCTION = "FUNK"
 	LET      = "ASK"
-	TRUE     = "NOCAP"
+	TRUE     = "FACT"
 	FALSE    = "CAP"
 	IF       = "CONSIDER"
 	ELSE     = "HOWEVER"
@@ -68,7 +68,7 @@ var TokenTypes = map[byte]TokenType{
 var keywords = map[string]TokenType{
 	"funk":     FUNCTION,
 	"ask":      LET,
-	"noCap":    TRUE,
+	"fact":     TRUE,
 	"cap":      FALSE,
 	"consider": IF,
 	"however":  ELSE,

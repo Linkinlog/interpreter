@@ -20,7 +20,7 @@ func TestLexer_NextToken(t *testing.T) {
 	!-/*5;
 	5 < 10 > 5;
 	consider (5 < 10) {
-		giving noCap;
+		giving fact;
 	} however {
 		giving cap;
 	}
@@ -89,7 +89,7 @@ func TestLexer_NextToken(t *testing.T) {
 		{token.RPAREN, ")"},
 		{token.LSQUIGGLE, "{"},
 		{token.RETURN, "giving"},
-		{token.TRUE, "noCap"},
+		{token.TRUE, "fact"},
 		{token.SEMICOLON, ";"},
 		{token.RSQUIGGLE, "}"},
 		{token.ELSE, "however"},

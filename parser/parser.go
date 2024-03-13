@@ -243,8 +243,8 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 
 func (p *Parser) parseBoolean() ast.Expression {
 	value := "cap"
-	if strings.EqualFold(string(p.currentToken.Type), "noCap") {
-		value = "noCap"
+	if strings.EqualFold(string(p.currentToken.Type), "fact") {
+		value = "fact"
 	}
 	return &ast.Boolean{
 		Token: p.currentToken,

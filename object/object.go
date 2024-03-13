@@ -26,7 +26,12 @@ type Boolean struct {
 	Value bool
 }
 
-func (b *Boolean) Inspect() string  { return fmt.Sprintf("%t", b.Value) }
+func (b *Boolean) Inspect() string {
+	if b.Value {
+		return "fact"
+	}
+	return "cap"
+}
 func (b *Boolean) Type() ObjectType { return BOOLEAN_OBJ }
 
 type Null struct{}
