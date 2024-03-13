@@ -5,11 +5,22 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/Linkinlog/MagLang/evaluator"
 	"github.com/Linkinlog/MagLang/lexer"
 	"github.com/Linkinlog/MagLang/parser"
 )
 
-const PROMPT = "(mag-repl) "
+const PROMPT = "(mag) "
+
+const PUPPEROON = `
+     |\_/|                  
+     | @ @   Woof? 
+     |   <>              _  
+     |  _/\------____ ((| |))
+     |               ` + "`" + `--' |   
+ ____|_       ___|   |___.' 
+/_/_____/____/_______|
+`
 
 func Start(in io.Reader, out io.Writer) {
 	scanner := bufio.NewScanner(in)
@@ -31,13 +42,19 @@ func Start(in io.Reader, out io.Writer) {
 			continue
 		}
 
-		io.WriteString(out, program.String())
-		io.WriteString(out, "\n")
+		evaluated := evaluator.Eval(program)
+		if evaluated != nil {
+			fmt.Fprint(out, evaluated.Inspect())
+			fmt.Fprint(out, "\n")
+		}
 	}
 }
 
 func printParserErrors(out io.Writer, errors []string) {
 	for _, msg := range errors {
-		io.WriteString(out, "\t"+msg+"\n")
+		fmt.Fprint(out, PUPPEROON)
+		fmt.Fprint(out, "\tWoof! We ran into a problem here!\n")
+		fmt.Fprint(out, "\t parser errors:\n")
+		fmt.Fprint(out, "\t"+msg+"\n")
 	}
 }

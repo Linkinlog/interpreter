@@ -16,7 +16,7 @@ func TestAskStatements(t *testing.T) {
 		expectedValue      interface{}
 	}{
 		{"ask x = 5;", "x", 5},
-		{"ask y = noCap;", "y", true},
+		{"ask y = noCap;", "y", "noCap"},
 		{"ask foobar = y;", "foobar", "y"},
 		{"ask foobar = y", "foobar", "y"},
 	}
@@ -53,7 +53,7 @@ func TestReturnStatements(t *testing.T) {
 		expectedValue interface{}
 	}{
 		{"giving 5;", 5},
-		{"giving noCap;", true},
+		{"giving noCap;", "noCap"},
 		{"giving foobar;", "foobar"},
 	}
 
@@ -158,8 +158,8 @@ func TestParsingPrefixExpressions(t *testing.T) {
 		{"-15;", "-", 15},
 		{"!foobar;", "!", "foobar"},
 		{"-foobar;", "-", "foobar"},
-		{"!noCap;", "!", true},
-		{"!cap;", "!", false},
+		{"!noCap;", "!", "noCap"},
+		{"!cap;", "!", "cap"},
 	}
 
 	for _, tt := range prefixTests {
@@ -219,9 +219,9 @@ func TestParsingInfixExpressions(t *testing.T) {
 		{"foobar < barfoo;", "foobar", "<", "barfoo"},
 		{"foobar == barfoo;", "foobar", "==", "barfoo"},
 		{"foobar != barfoo;", "foobar", "!=", "barfoo"},
-		{"noCap == noCap", true, "==", true},
-		{"noCap != cap", true, "!=", false},
-		{"cap == cap", false, "==", false},
+		{"noCap == noCap", "noCap", "==", "noCap"},
+		{"noCap != cap", "noCap", "!=", "cap"},
+		{"cap == cap", "cap", "==", "cap"},
 	}
 
 	for _, tt := range infixTests {
@@ -377,10 +377,10 @@ func TestBooleanExpression(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		input           string
-		expectedBoolean bool
+		expectedBoolean string
 	}{
-		{"noCap;", true},
-		{"cap;", false},
+		{"noCap;", "noCap"},
+		{"cap;", "cap"},
 	}
 
 	for _, tt := range tests {
@@ -406,7 +406,7 @@ func TestBooleanExpression(t *testing.T) {
 				t.Fatalf("exp not *ast.Boolean. got=%T", stmt.Expression)
 			}
 			if boolean.Value != tt.expectedBoolean {
-				t.Errorf("boolean.Value not %t. got=%t", tt.expectedBoolean,
+				t.Errorf("boolean.Value not %s. got=%s", tt.expectedBoolean,
 					boolean.Value)
 			}
 		})
@@ -761,9 +761,10 @@ func testLiteralExpression(
 	case int64:
 		return testIntegerLiteral(t, exp, v)
 	case string:
+		if v == "noCap" || v == "cap" {
+			return testBooleanLiteral(t, exp, v)
+		}
 		return testIdentifier(t, exp, v)
-	case bool:
-		return testBooleanLiteral(t, exp, v)
 	}
 	t.Errorf("type of exp not handled. got=%T", exp)
 	return false
@@ -813,7 +814,7 @@ func testIdentifier(t *testing.T, exp ast.Expression, value string) bool {
 	return true
 }
 
-func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
+func testBooleanLiteral(t *testing.T, exp ast.Expression, value string) bool {
 	bo, ok := exp.(*ast.Boolean)
 	if !ok {
 		t.Errorf("exp not *ast.Boolean. got=%T", exp)
@@ -821,16 +822,16 @@ func testBooleanLiteral(t *testing.T, exp ast.Expression, value bool) bool {
 	}
 
 	if bo.Value != value {
-		t.Errorf("bo.Value not %t. got=%t", value, bo.Value)
+		t.Errorf("bo.Value not %s. got=%s", value, bo.Value)
 		return false
 	}
 
-	if bo.Value && bo.TokenLiteral() != "noCap" {
+	if bo.Value == "noCap" && bo.TokenLiteral() != "noCap" {
 		t.Errorf("bo.TokenLiteral not noCap. got=%s", bo.TokenLiteral())
 		return false
 	}
 
-	if !bo.Value && bo.TokenLiteral() != "cap" {
+	if bo.Value == "cap" && bo.TokenLiteral() != "cap" {
 		t.Errorf("bo.TokenLiteral not cap. got=%s", bo.TokenLiteral())
 		return false
 	}

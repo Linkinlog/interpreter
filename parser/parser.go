@@ -3,6 +3,7 @@ package parser
 import (
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/Linkinlog/MagLang/ast"
 	"github.com/Linkinlog/MagLang/lexer"
@@ -134,7 +135,7 @@ func (p *Parser) parseReturnStatement() *ast.ReturnStatement {
 
 	stmt.ReturnValue = p.parseExpression(LOWEST)
 
-	for !p.currentTokenIs(token.SEMICOLON) {
+	if p.peekABooTokenIs(token.SEMICOLON) {
 		p.nextToken()
 	}
 
@@ -241,9 +242,13 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 }
 
 func (p *Parser) parseBoolean() ast.Expression {
+	value := "cap"
+	if strings.EqualFold(string(p.currentToken.Type), "noCap") {
+		value = "noCap"
+	}
 	return &ast.Boolean{
 		Token: p.currentToken,
-		Value: p.currentTokenIs(token.TRUE),
+		Value: value,
 	}
 }
 
