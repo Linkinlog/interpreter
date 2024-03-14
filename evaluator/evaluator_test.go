@@ -170,3 +170,47 @@ func testNullObject(t *testing.T, obj object.Object) bool {
 	}
 	return true
 }
+
+func TestReturnStatements(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"giving 6;", 6},
+		{"giving 10; 9;", 10},
+		{"giving 2 * 5; 9;", 10},
+		{"9; giving 2 * 5; 9;", 10},
+		{
+			`
+consider (10 > 1) {
+  consider (cap) {
+    giving 10;
+  }
+
+  giving 1;
+}
+`,
+			1,
+		},
+		{
+			`
+consider (10 > 1) {
+  consider (10 > 1) {
+    giving 10;
+  }
+
+  giving 1;
+}
+`,
+			10,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			testIntegerObject(t, evaluated, tt.expected)
+		})
+	}
+}
