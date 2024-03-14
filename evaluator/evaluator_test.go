@@ -43,8 +43,9 @@ func testEval(input string) object.Object {
 	l := lexer.New(input)
 	p := parser.New(l)
 	program := p.ParseProgram()
+	env := object.NewEnvironment()
 
-	return Eval(program)
+	return Eval(program, env)
 }
 
 func testIntegerObject(t *testing.T, obj object.Object, expected int64) bool {
@@ -134,20 +135,19 @@ func TestBangOperator(t *testing.T) {
 }
 
 func TestIfElseExpressions(t *testing.T) {
-	t.Skip()
 	t.Parallel()
 	tests := []struct {
 		input    string
 		expected interface{}
 	}{
-		{"if (fact) { 10 }", 10},
-		{"if (cap) { 10 }", nil},
-		{"if (5 < 10) { 10 }", 10},
-		{"if (5 > 10) { 10 }", nil},
-		{"if (5 > 10) { 10 } else { 20 }", 20},
-		{"if (5 < 10) { 10 } else { 20 }", 10},
-		{"if (fact) { 10 } else { 20 }", 10},
-		{"if (cap) { 10 } else { 20 }", 20},
+		{"consider (fact) { 10 }", 10},
+		{"consider (cap) { 10 }", nil},
+		{"consider (5 < 10) { 10 }", 10},
+		{"consider (5 > 10) { 10 }", nil},
+		{"consider (5 > 10) { 10 } however { 20 }", 20},
+		{"consider (5 < 10) { 10 } however { 20 }", 10},
+		{"consider (fact) { 10 } however { 20 }", 10},
+		{"consider (cap) { 10 } however { 20 }", 20},
 	}
 
 	for _, tt := range tests {
@@ -239,6 +239,7 @@ giving 1;
 `,
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
+		{"foo", "identifier not found: foo"},
 	}
 
 	for _, tt := range tests {
@@ -256,6 +257,26 @@ giving 1;
 				t.Errorf("wrong error message. expected=%q, got=%q",
 					tt.expected, errObj.Message)
 			}
+		})
+	}
+}
+
+func TestLetStatements(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		input    string
+		expected int64
+	}{
+		{"ask a = 5; giving a;", 5},
+		{"ask a = 5 * 5; giving a;", 25},
+		{"ask a = 5; ask b = a; giving b;", 5},
+		{"ask a = 5; ask b = a; ask c = a + b + 5; giving c;", 15},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			testIntegerObject(t, evaluated, tt.expected)
 		})
 	}
 }
