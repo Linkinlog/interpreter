@@ -214,3 +214,48 @@ consider (10 > 1) {
 		})
 	}
 }
+
+func TestErrorHandling(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		input    string
+		expected string
+	}{
+		{"5 + fact;", "type mismatch: INTEGER + BOOLEAN"},
+		{"5 + fact; 5;", "type mismatch: INTEGER + BOOLEAN"},
+		{"-fact", "unknown operator: -BOOLEAN"},
+		{"fact + cap;", "unknown operator: BOOLEAN + BOOLEAN"},
+		{"5; fact + cap; 5", "unknown operator: BOOLEAN + BOOLEAN"},
+		{"consider (10 > 1) { fact + cap; }", "unknown operator: BOOLEAN + BOOLEAN"},
+		{
+			`
+consider (10 > 1) {
+	consider (10 > 1) {
+		giving fact + cap;
+	}
+
+giving 1;
+}
+`,
+			"unknown operator: BOOLEAN + BOOLEAN",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			errObj, ok := evaluated.(*object.Error)
+			if !ok {
+				t.Errorf("no error object returned. got=%T(%+v)",
+					evaluated, evaluated)
+				return
+			}
+
+			if errObj.Message != tt.expected {
+				t.Errorf("wrong error message. expected=%q, got=%q",
+					tt.expected, errObj.Message)
+			}
+		})
+	}
+}
