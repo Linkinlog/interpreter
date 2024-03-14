@@ -132,3 +132,41 @@ func TestBangOperator(t *testing.T) {
 		})
 	}
 }
+
+func TestIfElseExpressions(t *testing.T) {
+	t.Skip()
+	t.Parallel()
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"if (fact) { 10 }", 10},
+		{"if (cap) { 10 }", nil},
+		{"if (5 < 10) { 10 }", 10},
+		{"if (5 > 10) { 10 }", nil},
+		{"if (5 > 10) { 10 } else { 20 }", 20},
+		{"if (5 < 10) { 10 } else { 20 }", 10},
+		{"if (fact) { 10 } else { 20 }", 10},
+		{"if (cap) { 10 } else { 20 }", 20},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+			integer, ok := tt.expected.(int)
+			if ok {
+				testIntegerObject(t, evaluated, int64(integer))
+			} else {
+				testNullObject(t, evaluated)
+			}
+		})
+	}
+}
+
+func testNullObject(t *testing.T, obj object.Object) bool {
+	if obj != NULL {
+		t.Errorf("object is not NULL. got=%T (%+v)", obj, obj)
+		return false
+	}
+	return true
+}
