@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os"
 	"os/user"
 
 	"github.com/Linkinlog/MagLang/evaluator"
@@ -25,6 +26,40 @@ const PUPPEROON = `
  ____|_       ___|   |___.' 
 /_/_____/____/_______|
 `
+
+func RunFile(filename string) {
+	file, err := os.Open(filename)
+	if err != nil {
+		fmt.Printf("couldnt open file %s\n", filename)
+		return
+	}
+
+	scanner := bufio.NewScanner(file)
+	env := object.NewEnvironment()
+
+	for {
+		scanned := scanner.Scan()
+		if !scanned {
+			return
+		}
+
+		line := scanner.Text()
+		l := lexer.New(line)
+		p := parser.New(l)
+
+		program := p.ParseProgram()
+		if len(p.Errors()) != 0 {
+			printParserErrors(os.Stdout, p.Errors())
+			continue
+		}
+
+		evaluated := evaluator.Eval(program, env)
+		if evaluated != nil {
+			fmt.Fprint(os.Stdout, evaluated.Inspect())
+			fmt.Fprint(os.Stdout, "\n")
+		}
+	}
+}
 
 func Start(in io.Reader, out io.Writer) {
 	greet()

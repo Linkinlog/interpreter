@@ -55,6 +55,7 @@ type Token struct {
 var TokenTypes = map[byte]TokenType{
 	'=': ASSIGN,
 	';': SEMICOLON,
+	':': COLON,
 	'(': LPAREN,
 	')': RPAREN,
 	',': COMMA,
