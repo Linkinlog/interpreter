@@ -8,6 +8,8 @@ const (
 	IDENT = "IDENT"
 	// INT literals 12345
 	INT = "INT"
+	// STRING "wow!"
+	STRING = "STRING"
 
 	// Operators
 
@@ -24,10 +26,13 @@ const (
 
 	COMMA     = ","
 	SEMICOLON = ";"
+	COLON     = ":"
 	LPAREN    = "("
 	RPAREN    = ")"
 	LSQUIGGLE = "{"
 	RSQUIGGLE = "}"
+	LBRACKET  = "["
+	RBRACKET  = "]"
 
 	// Keywords
 
@@ -56,6 +61,8 @@ var TokenTypes = map[byte]TokenType{
 	'+': PLUS,
 	'{': LSQUIGGLE,
 	'}': RSQUIGGLE,
+	'[': LBRACKET,
+	']': RBRACKET,
 	'-': MINUS,
 	'!': BANG,
 	'*': ASTERISK,

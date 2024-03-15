@@ -8,6 +8,7 @@ import (
 )
 
 func TestLexer_NextToken(t *testing.T) {
+	t.Parallel()
 	input := `
 	ask five = 5;
 	ask ten = 10;
@@ -27,6 +28,9 @@ func TestLexer_NextToken(t *testing.T) {
 
 	10 == 10;
 	10 != 9;
+	"foobar"
+	"foo bar"
+	[1, 2];
 	`
 
 	tests := []struct {
@@ -106,6 +110,14 @@ func TestLexer_NextToken(t *testing.T) {
 		{token.NOT_EQ, "!="},
 		{token.INT, "9"},
 		{token.SEMICOLON, ";"},
+		{token.STRING, "foobar"},
+		{token.STRING, "foo bar"},
+		{token.LBRACKET, "["},
+		{token.INT, "1"},
+		{token.COMMA, ","},
+		{token.INT, "2"},
+		{token.RBRACKET, "]"},
+		{token.SEMICOLON, ";"},
 		{token.EOF, ""},
 	}
 
@@ -126,6 +138,7 @@ func TestLexer_NextToken(t *testing.T) {
 }
 
 func TestNew(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		input string
 	}
@@ -155,6 +168,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestLexer_readChar(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		input        string
 		position     int
@@ -189,6 +203,7 @@ func TestLexer_readChar(t *testing.T) {
 }
 
 func TestLexer_NextTokenIndividual(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		input        string
 		position     int
@@ -269,6 +284,7 @@ func TestLexer_NextTokenIndividual(t *testing.T) {
 }
 
 func TestLexer_readNumberOrIdentifier(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		input        string
 		position     int
@@ -331,6 +347,7 @@ func TestLexer_readNumberOrIdentifier(t *testing.T) {
 }
 
 func Test_newToken(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		tokenType token.TokenType
 		char      byte
@@ -362,6 +379,7 @@ func Test_newToken(t *testing.T) {
 }
 
 func Test_isLetter(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		char byte
 	}
@@ -395,6 +413,7 @@ func Test_isLetter(t *testing.T) {
 }
 
 func Test_isDigit(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		char byte
 	}
@@ -428,6 +447,7 @@ func Test_isDigit(t *testing.T) {
 }
 
 func TestLexer_skipWhitespace(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		input        string
 		position     int
@@ -462,6 +482,7 @@ func TestLexer_skipWhitespace(t *testing.T) {
 }
 
 func TestLexer_peekChar(t *testing.T) {
+	t.Parallel()
 	type fields struct {
 		input        string
 		position     int
@@ -510,6 +531,7 @@ func TestLexer_peekChar(t *testing.T) {
 }
 
 func Test_isTwoCharToken(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		char byte
 		next byte
@@ -546,6 +568,7 @@ func Test_isTwoCharToken(t *testing.T) {
 }
 
 func Test_makeTwoCharToken(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		first  byte
 		second byte

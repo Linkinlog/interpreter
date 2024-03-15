@@ -3,6 +3,7 @@ package token
 import "testing"
 
 func TestLookupIdent(t *testing.T) {
+	t.Parallel()
 	type args struct {
 		ident string
 	}

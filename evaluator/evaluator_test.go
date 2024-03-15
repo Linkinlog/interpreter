@@ -240,6 +240,7 @@ giving 1;
 			"unknown operator: BOOLEAN + BOOLEAN",
 		},
 		{"foo", "identifier not found: foo"},
+		{"\"hello\" - \"world\"", "unknown operator: STRING - STRING"},
 	}
 
 	for _, tt := range tests {
@@ -282,6 +283,7 @@ func TestLetStatements(t *testing.T) {
 }
 
 func TestFunctionObject(t *testing.T) {
+	t.Parallel()
 	input := `funk(x) { x + 2; };`
 
 	evaluated := testEval(input)
@@ -340,4 +342,144 @@ func TestClosures(t *testing.T) {
 
 	evaluated := testEval(input)
 	testIntegerObject(t, evaluated, 5)
+}
+
+func TestStringLiteral(t *testing.T) {
+	t.Parallel()
+	input := `"hello world!";`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+	}
+	if str.Value != "hello world!" {
+		t.Errorf("str.Value is not %q. got=%q", "hello world!", str.Value)
+	}
+}
+
+func TestStringConcatenation(t *testing.T) {
+	t.Parallel()
+	input := `"ello" + " " + "govna!";`
+	evaluated := testEval(input)
+	str, ok := evaluated.(*object.String)
+	if !ok {
+		t.Fatalf("object is not String. got=%T (%+v)", evaluated, evaluated)
+	}
+	if str.Value != "ello govna!" {
+		t.Errorf("str.Value is not %q. got=%q", "ello govna!", str.Value)
+	}
+}
+
+func TestBuiltinFunctions(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{`thickness("")`, 0},
+		{`thickness("govna")`, 5},
+		{`thickness("hello world!")`, 12},
+		{`thickness(1)`, "argument to `thickness` not supported, got INTEGER"},
+		{`thickness("one", "two")`, "wrong number of arguments. got=2, want=1"},
+		{`thickness([1, 2, 3])`, 3},
+		{`thickness([])`, 0},
+		{`first([1, 2, 3])`, 1},
+		{`first([])`, nil},
+		{`first(1)`, "argument to `first` must be ARRAY, got INTEGER"},
+		{`last([1, 2, 3])`, 3},
+		{`last([])`, nil},
+		{`last(1)`, "argument to `last` must be ARRAY, got INTEGER"},
+		{`bum([1, 2, 3])`, []int{2, 3}},
+		{`bum([])`, nil},
+		{`push([], 1)`, []int{1}},
+		{`push(1, 1)`, "argument to `push` must be ARRAY, got INTEGER"},
+		// {`puts("hello", "world!")`, nil},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			switch expected := tt.expected.(type) {
+			case int:
+				testIntegerObject(t, evaluated, int64(expected))
+			case nil:
+				testNullObject(t, evaluated)
+			case string:
+				errObj, ok := evaluated.(*object.Error)
+				if !ok {
+					t.Errorf("object is not Error. got=%T (%+v)",
+						evaluated, evaluated)
+					return
+				}
+				if errObj.Message != expected {
+					t.Errorf("wrong error message. expected=%q, got=%q",
+						expected, errObj.Message)
+				}
+			case []int:
+				array, ok := evaluated.(*object.Array)
+				if !ok {
+					t.Errorf("obj not Array. got=%T (%+v)", evaluated, evaluated)
+					return
+				}
+
+				if len(array.Elements) != len(expected) {
+					t.Errorf("wrong num of elements. want=%d, got=%d",
+						len(expected), len(array.Elements))
+					return
+				}
+
+				for i, expectedElem := range expected {
+					testIntegerObject(t, array.Elements[i], int64(expectedElem))
+				}
+			}
+		})
+	}
+}
+
+func TestArrayLiterals(t *testing.T) {
+	t.Parallel()
+	input := "[1, 2 * 2, 3 + 3];"
+	evaluated := testEval(input)
+	result, ok := evaluated.(*object.Array)
+	if !ok {
+		t.Fatalf("object is not Array. got=%T (%+v)", evaluated, evaluated)
+	}
+	if len(result.Elements) != 3 {
+		t.Fatalf("array has wrong num of elements. got=%d", len(result.Elements))
+	}
+	testIntegerObject(t, result.Elements[0], 1)
+	testIntegerObject(t, result.Elements[1], 4)
+	testIntegerObject(t, result.Elements[2], 6)
+}
+
+func TestArrayIndexExpressions(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		input    string
+		expected interface{}
+	}{
+		{"[1, 2, 3][0]", 1},
+		{"[1, 2, 3][1]", 2},
+		{"[1, 2, 3][2]", 3},
+		{"ask myArray = [1, 2, 3]; myArray[0];", 1},
+		{"ask myArray = [1, 2, 3]; myArray[1];", 2},
+		{"ask myArray = [1, 2, 3]; myArray[2];", 3},
+		{"ask myArray = [1, 2, 3]; ask i = myArray[0]; myArray[i];", 2},
+		{"[1, 2, 3][3]", nil},
+		{"[1, 2, 3][-1]", nil},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			evaluated := testEval(tt.input)
+
+			switch expected := tt.expected.(type) {
+			case int:
+				testIntegerObject(t, evaluated, int64(expected))
+			default:
+				testNullObject(t, evaluated)
+			}
+		})
+	}
 }

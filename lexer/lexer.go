@@ -41,13 +41,9 @@ func (l *Lexer) peekChar() byte {
 
 func (l *Lexer) NextToken() (toke token.Token) {
 	l.skipWhitespace()
-	tokenType, ok := token.TokenTypes[l.char]
-	if !ok && (!isDigit(l.char) && !isLetter(l.char)) {
-		return newToken(token.ILLEGAL, l.char)
-	}
-	if isTwoCharToken(l.char, l.peekChar()) {
-		toke = makeTwoCharToken(l.char, l.peekChar())
-		l.readChar()
+	if l.char == '"' {
+		toke.Type = token.STRING
+		toke.Literal = l.readString()
 		l.readChar()
 		return toke
 	}
@@ -61,6 +57,17 @@ func (l *Lexer) NextToken() (toke token.Token) {
 		toke.Literal = l.readNumberOrIdentifier(isDigit)
 		return toke
 	}
+
+	tokenType, ok := token.TokenTypes[l.char]
+	if !ok {
+		return newToken(token.ILLEGAL, l.char)
+	}
+	if isTwoCharToken(l.char, l.peekChar()) {
+		toke = makeTwoCharToken(l.char, l.peekChar())
+		l.readChar()
+		l.readChar()
+		return toke
+	}
 	if tokenType == token.EOF {
 		toke.Literal = ""
 		toke.Type = tokenType
@@ -69,6 +76,17 @@ func (l *Lexer) NextToken() (toke token.Token) {
 	toke = newToken(tokenType, l.char)
 	l.readChar()
 	return toke
+}
+
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	for {
+		l.readChar()
+		if l.char == '"' || l.char == 0 {
+			break
+		}
+	}
+	return l.input[position:l.position]
 }
 
 func (l *Lexer) readNumberOrIdentifier(fn func(byte) bool) string {

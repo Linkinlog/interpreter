@@ -1,11 +1,13 @@
 package ast
 
 import (
-	"github.com/Linkinlog/MagLang/token"
 	"testing"
+
+	"github.com/Linkinlog/MagLang/token"
 )
 
 func TestString(t *testing.T) {
+	t.Parallel()
 	program := &Program{
 		Statements: []Statement{
 			&AskStatement{

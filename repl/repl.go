@@ -4,12 +4,15 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"os/user"
 
 	"github.com/Linkinlog/MagLang/evaluator"
 	"github.com/Linkinlog/MagLang/lexer"
 	"github.com/Linkinlog/MagLang/object"
 	"github.com/Linkinlog/MagLang/parser"
 )
+
+const name = "MagLang"
 
 const PROMPT = "(mag) "
 
@@ -24,6 +27,8 @@ const PUPPEROON = `
 `
 
 func Start(in io.Reader, out io.Writer) {
+	greet()
+
 	scanner := bufio.NewScanner(in)
 	env := object.NewEnvironment()
 
@@ -35,6 +40,10 @@ func Start(in io.Reader, out io.Writer) {
 		}
 
 		line := scanner.Text()
+		if line == "exit" {
+			fmt.Fprint(out, "Goodbye! :(\n")
+			return
+		}
 		l := lexer.New(line)
 		p := parser.New(l)
 
@@ -50,6 +59,16 @@ func Start(in io.Reader, out io.Writer) {
 			fmt.Fprint(out, "\n")
 		}
 	}
+}
+
+func greet() {
+	user, err := user.Current()
+	if err != nil {
+		panic(err)
+	}
+	fmt.Printf("Hello %s! Welcome to the %s REPL!\n",
+		user.Username, name)
+	fmt.Printf("Please enter some commands!\n")
 }
 
 func printParserErrors(out io.Writer, errors []string) {
