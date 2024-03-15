@@ -31,6 +31,7 @@ func TestLexer_NextToken(t *testing.T) {
 	"foobar"
 	"foo bar"
 	[1, 2];
+	{"foo": "bar"}
 	`
 
 	tests := []struct {
@@ -118,6 +119,11 @@ func TestLexer_NextToken(t *testing.T) {
 		{token.INT, "2"},
 		{token.RBRACKET, "]"},
 		{token.SEMICOLON, ";"},
+		{token.LSQUIGGLE, "{"},
+		{token.STRING, "foo"},
+		{token.COLON, ":"},
+		{token.STRING, "bar"},
+		{token.RSQUIGGLE, "}"},
 		{token.EOF, ""},
 	}
 
